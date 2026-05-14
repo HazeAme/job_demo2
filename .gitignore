@@ -1,0 +1,28 @@
+# IDE
+.idea/
+*.iml
+
+# Claude
+.claude/
+
+# Maven
+backend/target/
+*.jar
+*.war
+
+# Node
+node_modules/
+frontend/dist/
+frontend/node_modules/
+miniprogram/node_modules/
+
+# Uploads
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+*.stackdump
+
+# Logs
+*.log

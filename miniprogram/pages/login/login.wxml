@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="login-box">
+    <view class="logo-section">
+      <view class="logo"><text class="logo-icon">🧭</text></view>
+      <text class="title">旅行打卡</text>
+      <text class="subtitle">记录你的每一次旅程</text>
+    </view>
+
+    <view class="form-section">
+      <view class="tabs">
+        <view class="tab {{activeTab === 'login' ? 'active' : ''}}" bindtap="switchTab" data-tab="login">
+          登录
+        </view>
+        <view class="tab {{activeTab === 'register' ? 'active' : ''}}" bindtap="switchTab" data-tab="register">
+          注册
+        </view>
+      </view>
+
+      <!-- 登录表单 -->
+      <view wx:if="{{activeTab === 'login'}}">
+        <input class="input" placeholder="用户名" value="{{loginForm.username}}" bindinput="onLoginUsernameInput" />
+        <input class="input" placeholder="密码" password value="{{loginForm.password}}" bindinput="onLoginPasswordInput" />
+
+        <button class="btn-primary" bindtap="handleLogin" loading="{{loading}}">登录</button>
+      </view>
+
+      <!-- 注册表单 -->
+      <view wx:if="{{activeTab === 'register'}}">
+        <input class="input" placeholder="用户名" value="{{registerForm.username}}" bindinput="onRegisterUsernameInput" />
+        <input class="input" placeholder="密码" password value="{{registerForm.password}}" bindinput="onRegisterPasswordInput" />
+        <input class="input" placeholder="确认密码" password value="{{registerForm.confirmPassword}}" bindinput="onRegisterConfirmPasswordInput" />
+
+        <button class="btn-primary" bindtap="handleRegister" loading="{{loading}}">注册</button>
+      </view>
+    </view>
+  </view>
+</view>

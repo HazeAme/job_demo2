@@ -1,0 +1,145 @@
+<wxs module="dateUtil">
+  function formatDate(time) {
+    if (!time) return ''
+    var date = getDate(time)
+    var year = date.getFullYear()
+    var month = date.getMonth() + 1
+    var day = date.getDate()
+    var weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+    var weekday = weekdays[date.getDay()]
+    return year + '年' + month + '月' + day + '日 ' + weekday
+  }
+
+  function formatTimeOnly(time) {
+    if (!time) return ''
+    var date = getDate(time)
+    var hours = date.getHours()
+    var minutes = date.getMinutes()
+    return (hours < 10 ? '0' + hours : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes)
+  }
+
+  module.exports = {
+    formatDate: formatDate,
+    formatTimeOnly: formatTimeOnly
+  }
+</wxs>
+
+<view class="container">
+  <view class="header gradient-bg">
+    <text class="header-title">打卡历史</text>
+    <text class="header-subtitle">共 {{total}} 条记录</text>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-box">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索地点、内容..."
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        bindconfirm="doSearch"
+      />
+      <view wx:if="{{searchKeyword}}" class="clear-btn" bindtap="clearSearch">×</view>
+    </view>
+    <view class="search-btn" bindtap="doSearch">搜索</view>
+  </view>
+
+  <!-- 日期筛选 -->
+  <view class="date-filter-bar">
+    <view class="date-picker-row">
+      <picker mode="date" value="{{startDate || defaultDate}}" start="2020-01-01" end="2030-12-31" bindchange="onStartDateChange" class="date-picker">
+        <view class="date-picker-content">
+          <text class="date-label">开始日期</text>
+          <text class="date-value {{startDate ? '' : 'placeholder'}}">{{startDate || '请选择'}}</text>
+        </view>
+      </picker>
+      <text class="date-separator">至</text>
+      <picker mode="date" value="{{endDate || defaultDate}}" start="2020-01-01" end="2030-12-31" bindchange="onEndDateChange" class="date-picker">
+        <view class="date-picker-content">
+          <text class="date-label">结束日期</text>
+          <text class="date-value {{endDate ? '' : 'placeholder'}}">{{endDate || '请选择'}}</text>
+        </view>
+      </picker>
+    </view>
+    <view wx:if="{{startDate || endDate}}" class="date-filter-actions">
+      <text class="clear-date-btn" bindtap="clearDateFilter">清除日期</text>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-bar">
+    <scroll-view scroll-x class="filter-scroll">
+      <view class="filter-list">
+        <view
+          class="filter-item {{selectedMood === '' ? 'active' : ''}}"
+          bindtap="filterByMood"
+          data-mood=""
+        >
+          <text>全部</text>
+        </view>
+        <view
+          wx:for="{{moods}}"
+          wx:key="value"
+          class="filter-item {{selectedMood === item.value ? 'active' : ''}}"
+          bindtap="filterByMood"
+          data-mood="{{item.value}}"
+        >
+          <text>{{item.emoji}} {{item.label}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 筛选状态栏 -->
+  <view wx:if="{{searchKeyword || selectedMood || startDate || endDate}}" class="filter-status">
+    <text class="filter-status-text">已应用筛选</text>
+    <text class="clear-all-btn" bindtap="clearAllFilters">清除全部</text>
+  </view>
+
+  <view class="content">
+    <!-- 加载中 -->
+    <view wx:if="{{loading}}" class="loading">
+      <text>⏳ 加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:elif="{{checkInList.length === 0}}" class="empty">
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">还没有打卡记录</text>
+      <text class="empty-subtext">快去记录你的第一次旅程吧！</text>
+    </view>
+
+    <!-- 列表 -->
+    <view wx:else class="timeline">
+      <view wx:for="{{checkInList}}" wx:for-item="checkIn" wx:key="id" class="timeline-item">
+        <view class="timeline-dot"></view>
+        <view class="timeline-content">
+          <view class="time">{{dateUtil.formatDate(checkIn.checkInTime)}} {{dateUtil.formatTimeOnly(checkIn.checkInTime)}}</view>
+          <view class="card">
+            <view class="card-header">
+              <view class="location">
+                <text>📍</text>
+                <text>{{checkIn.locationName || '未知位置'}}</text>
+              </view>
+              <text wx:if="{{checkIn.mood}}" class="mood">{{getMoodEmoji(checkIn.mood)}}</text>
+            </view>
+            <text class="content-text">{{checkIn.content}}</text>
+            <view wx:if="{{checkIn.images && checkIn.images.length > 0}}" class="images">
+              <image wx:for="{{checkIn.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="aspectFill" bindtap="previewImage" data-urls="{{checkIn.images}}" data-current="{{img}}"/>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{!loading && hasMore}}" class="load-more" bindtap="loadMore">
+      <text>📥 点击加载更多</text>
+    </view>
+    <view wx:if="{{!loading && !hasMore && checkInList.length > 0}}" class="no-more">
+      <text>✅ 没有更多了</text>
+    </view>
+  </view>
+</view>

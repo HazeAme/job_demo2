@@ -1,0 +1,166 @@
+<view class="container">
+  <view class="header gradient-bg">
+    <text class="header-title">记录新旅程</text>
+    <text class="header-subtitle">分享你的旅行故事</text>
+  </view>
+
+  <view class="form-container">
+    <!-- 位置 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="label-icon">📍</text>
+        <text>位置</text>
+      </view>
+
+      <!-- 地图区域 -->
+      <view class="map-container">
+        <map
+          id="locationMap"
+          class="location-map"
+          longitude="{{location.longitude}}"
+          latitude="{{location.latitude}}"
+          scale="{{mapScale}}"
+          show-location
+          markers="{{markers}}"
+          bindtap="onMapTap"
+          bindregionchange="onRegionChange"
+          show-compass
+          enable-zoom
+          enable-scroll
+          enable-rotate
+        />
+
+        <view wx:if="{{!location.latitude}}" class="map-placeholder">
+          <text class="placeholder-text">点击获取位置后显示地图</text>
+        </view>
+      </view>
+
+      <!-- 位置信息 -->
+      <view wx:if="{{location.name}}" class="location-info">
+        <text class="location-name">{{location.name}}</text>
+        <text wx:if="{{location.address}}" class="location-address">{{location.address}}</text>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="location-actions">
+        <view class="location-btn primary" bindtap="getLocation">
+          <text class="btn-icon">📍</text>
+          <text>{{locationLoading ? '定位中...' : '获取当前位置'}}</text>
+        </view>
+        <view class="location-btn secondary" bindtap="openMapPicker">
+          <text class="btn-icon">🗺️</text>
+          <text>地图选点</text>
+        </view>
+      </view>
+
+      <!-- 搜索栏 -->
+      <view class="search-box">
+        <input
+          class="search-input"
+          placeholder="搜索地点、商铺..."
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          bindconfirm="searchLocation"
+        />
+        <view class="search-btn" bindtap="searchLocation">🔍</view>
+      </view>
+
+      <!-- 搜索结果 -->
+      <view wx:if="{{searchResults.length > 0}}" class="search-results">
+        <view
+          wx:for="{{searchResults}}"
+          wx:key="id"
+          class="result-item"
+          bindtap="selectLocation"
+          data-item="{{item}}"
+        >
+          <text class="result-name">{{item.title}}</text>
+          <text class="result-address">{{item.address}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 日期时间 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="label-icon">📅</text>
+        <text>打卡时间</text>
+      </view>
+      <view class="datetime-picker">
+        <picker mode="date" value="{{checkInDate}}" bindchange="onDateChange" class="picker-item">
+          <view class="picker-content">
+            <text class="picker-label">日期</text>
+            <text class="picker-value">{{checkInDate}}</text>
+          </view>
+        </picker>
+        <picker mode="time" value="{{checkInTime}}" bindchange="onTimeChange" class="picker-item">
+          <view class="picker-content">
+            <text class="picker-label">时间</text>
+            <text class="picker-value">{{checkInTime}}</text>
+          </view>
+        </picker>
+        <view class="current-btn" bindtap="setCurrentDateTime">
+          <text class="current-btn-text">当前</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 心情 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="label-icon">😊</text>
+        <text>心情</text>
+      </view>
+      <view class="mood-list">
+        <view
+          wx:for="{{moods}}"
+          wx:key="value"
+          class="mood-item {{selectedMood === item.value ? 'active' : ''}}"
+          bindtap="selectMood"
+          data-mood="{{item.value}}"
+        >
+          <text class="mood-emoji">{{item.emoji}}</text>
+          <text class="mood-label">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 内容 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="label-icon">📝</text>
+        <text>内容</text>
+      </view>
+      <textarea
+        class="content-input"
+        placeholder="分享你的旅行故事..."
+        maxlength="500"
+        bindinput="onContentInput"
+        value="{{content}}"
+      />
+      <text class="word-count">{{content.length}}/500</text>
+    </view>
+
+    <!-- 图片 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="label-icon">📷</text>
+        <text>照片</text>
+      </view>
+      <view class="image-list">
+        <view wx:for="{{images}}" wx:key="index" class="image-item">
+          <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"/>
+          <view class="delete-btn" bindtap="deleteImage" data-index="{{index}}">×</view>
+        </view>
+        <view class="upload-btn" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+          <text class="plus">+</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button class="btn-primary submit-btn" bindtap="submit" loading="{{submitting}}">
+      ✓ 发布打卡
+    </button>
+  </view>
+</view>
