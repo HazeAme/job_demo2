@@ -121,7 +121,6 @@ npm install -g cpolar
 cpolar http 5173
 ```
 
-获取公网链接后，即可分享给HR访问。
 
 ## API接口文档
 
